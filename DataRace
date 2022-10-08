@@ -1,0 +1,44 @@
+class Counter {
+   public static long count = 0;
+}
+class ByCounter implements Runnable {
+   public static void increment() {
+      Counter.count++;
+      System.out.print(Counter.count + " ");
+   }
+   public void run() {
+      increment();
+      increment();
+      increment();
+   }
+}
+public class DataRace {
+   public static void main(String[] args) {
+      ByCounter c = new ByCounter();
+      Thread t1 = new Thread(c);
+      Thread t2 = new Thread(c);
+      Thread t3 = new Thread(c);
+      t1.start();
+      t2.start();
+      t3.start();
+      int count = 0;
+      Sync sc = new Sync();
+      Thread t4 = new Thread(sc);
+      Thread t5 = new Thread(sc);
+      Thread t6 = new Thread(sc);
+      t4.start();
+      t5.start();
+      t6.start();
+   }
+}
+class Sync implements Runnable {
+   public static synchronized void increment() {
+      Counter.count++;
+      System.out.print(Counter.count + " ");
+   }
+   public void run() {
+      increment();
+      increment();
+      increment();
+   }
+}
