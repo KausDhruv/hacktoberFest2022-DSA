@@ -1,0 +1,58 @@
+import java.util.ArrayList;
+import java.util.List;
+public class SynchronizationExample {
+	public static void main(String args[]) {
+		for (int run = 0, numberOfThreads = 2; run < 100000; run++) {
+			System.out.printf("Running Thread %d ", run + 1);
+			final IntCounter atomicIntCounter = new IntCounter();
+			final List<Thread> threads = new ArrayList<>(numberOfThreads);
+			for (int i = 0; i < numberOfThreads; i++) {
+				final Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						final int value = atomicIntCounter.getValue();
+						atomicIntCounter.setValue(value + 1);
+					}
+//public void run() {// If we synchronize on object of IntCounter which is shared among various
+//synchronized (atomicIntCounter) {
+//final int value = atomicIntCounter.getValue();
+//atomicIntCounter.setValue(value + 1);
+//}
+//}
+});
+thread.start();
+threads.add(thread);
+}
+for (final Thread thread : threads) {
+	try {
+		thread.join();// waits for current thread to finish executions
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+	}
+}
+if (atomicIntCounter.getValue() == numberOfThreads) {
+	System.out.println("Its in order");
+} else {
+	System.out.printf("Something went wrong. Race Condition.Actual value is %d And Expected Value was %d%n", atomicIntCounter.getValue(), numberOfThreads);
+	break;
+}
+}
+}
+}
+class IntCounter {
+	private int number;
+	public synchronized int getValue() {
+		return number;
+	}
+	public synchronized void setValue(final int value) {
+		this.number = value;
+	}	
+}
+ 
+#Part- b:(ONLY THE RUN METHOD) 
+public void run(){
+	synchronized (atomicIntCounter) {
+		final int value = atomicIntCounter.getValue();
+		atomicIntCounter.setValue(value + 1);
+	}
+}
